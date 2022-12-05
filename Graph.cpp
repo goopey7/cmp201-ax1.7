@@ -6,6 +6,7 @@
 
 #include "Graph.h"
 #include <sstream>
+#include <algorithm>
 
 // digraph constructor.
 // initialise size and vertices (a pointer to an array of graphVertex pointers)
@@ -83,28 +84,70 @@ pathInformation Graph::dijkstra(int start, int end)
 	// priority queue of distances to vertices yet to visit alongside their index. DISTANCE FIRST, index second.
 	std::priority_queue<std::pair<int, int>, std::vector<std::pair<int,int>>, std::greater<std::pair<int,int>>> frontier;
 
-	// TODO
 	// Set initial distances to arbitrarily high value and set start distance to 0. 
+	for(int i=0; i<size; i++)
+	{
+		if(i != start)
+		{
+			distanceTo[i] = INT32_MAX;
+			frontier.push({distanceTo[i],i});
+		}
+	}
+	distanceTo[start] = 0;
+
 	// Add start to frontier.
-	
+	frontier.push({distanceTo[start],start});
 
 	// TODO
 	// main loop:
-	// while the frontier has vertices yet to visit.
-	// get a reference to the vertex, if the vertex has been visited, continue
-	// remove from frontier, set visited to true and iterate over all edges from the vertex in the adjacency list.
-		// check if the distance via the visited vertex along the edge is smaller than the currently found shortest distance
-			// update the distance and path maps if a new shorter path is found, add the edge vertex to the frontier with the new distance.
-	
 
+	// while the frontier has vertices yet to visit.
+	while(!frontier.empty())
+	{
+		// get a reference to the vertex, if the vertex has been visited, continue
+		std::pair<int,int> front = frontier.top();
+		graphVertex* vertex = vertices[front.second];
+		if(!visited[front.first])
+		{
+			// remove from frontier, set visited to true
+			frontier.pop();
+			visited[front.second] = true;
+
+			//iterate over all edges from the vertex in the adjacency list.
+			graphVertex* adjacentNode = vertex->next;
+			while(adjacentNode != nullptr)
+			{
+				// check if the distance via the visited vertex along the edge is smaller than the currently found shortest distance
+				if(distanceTo[adjacentNode->to] > distanceTo[vertex->to] + adjacentNode->weight)
+				{
+					// update the distance and path maps if a new shorter path is found, add the edge vertex to the frontier with the new distance.
+					// update the distance map
+					distanceTo[adjacentNode->to] = distanceTo[vertex->to] + adjacentNode->weight;
+
+					// update path map if distance to get to adjacent node is smaller
+					pathTaken[adjacentNode->to] = vertex->to;
+
+					// add the edge vertex to the frontier with the new distance.
+					frontier.push({distanceTo[adjacentNode->to],adjacentNode->to});
+				}
+				adjacentNode = adjacentNode->next;
+			}
+		}
+	}
+	
 	// TODO
-	// Create a return structure and store the length as the distance to the end.
 	// Create an int stack and iterate backwards over the pathTo map, pushing onto the stack from end until start has been pushed.
+	std::stack<int> path;
+	path.push(end);
+	int nodeToPush = end;
+	while(nodeToPush != start)
+	{
+		nodeToPush = pathTaken[nodeToPush];
+		path.push(nodeToPush);
+	}
 	// Store the stack in the structure and return it.
 
-
-	return pathInformation();
-	
+	return {distanceTo[end],path};
 }
 
 // Sample main included for testing purposes. Remove or commment out or [-1].
