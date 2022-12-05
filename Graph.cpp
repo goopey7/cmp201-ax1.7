@@ -6,7 +6,6 @@
 
 #include "Graph.h"
 #include <sstream>
-#include <algorithm>
 
 // digraph constructor.
 // initialise size and vertices (a pointer to an array of graphVertex pointers)
@@ -21,15 +20,18 @@ Graph::Graph(graphEdge edges[], int numEdges, int numVertices)
 	// intialize vertices array
 	vertices = new graphVertex*[size]();
 
+	// loop through vertices
 	for(int vert = 0; vert < numVertices; vert++)
 	{
+		// initialize empty linked list for each vertex
 		vertices[vert] = new graphVertex();
 		vertices[vert]->to = vert;
 		vertices[vert]->next = nullptr;
 
+		// loop through all edges
 		for(int edge = 0; edge < numEdges; edge++)
 		{
-			// if we found an edge that allows us to go to somewhere from where we are
+			// if we found an edge that allows us to go to somewhere from the current vertex
 			if(edges[edge].from == vert)
 			{
 				vertices[vert]->next = getAdjacencyList(edges[edge].to, edges[edge].weight, vertices[vert]->next);
@@ -44,6 +46,7 @@ Graph::Graph(graphEdge edges[], int numEdges, int numVertices)
 // Notice the spaces, commas (not trailing). Also each vertex is on it's own line.
 // Nothing should be printed by this method.
 // hint: Use std::to_string(int val) to convert from integers to strings
+// BETTER hint: use output string stream so everything gets converted for you :)
 std::string Graph::display()
 {
 	// Assessed: 1 mark
@@ -98,9 +101,6 @@ pathInformation Graph::dijkstra(int start, int end)
 	// Add start to frontier.
 	frontier.push({distanceTo[start],start});
 
-	// TODO
-	// main loop:
-
 	// while the frontier has vertices yet to visit.
 	while(!frontier.empty())
 	{
@@ -135,7 +135,6 @@ pathInformation Graph::dijkstra(int start, int end)
 		}
 	}
 	
-	// TODO
 	// Create an int stack and iterate backwards over the pathTo map, pushing onto the stack from end until start has been pushed.
 	std::stack<int> path;
 	path.push(end);
@@ -145,8 +144,6 @@ pathInformation Graph::dijkstra(int start, int end)
 		nodeToPush = pathTaken[nodeToPush];
 		path.push(nodeToPush);
 	}
-	// Store the stack in the structure and return it.
-
 	return {distanceTo[end],path};
 }
 
