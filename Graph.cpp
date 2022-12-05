@@ -93,7 +93,6 @@ pathInformation Graph::dijkstra(int start, int end)
 		if(i != start)
 		{
 			distanceTo[i] = INT32_MAX;
-			frontier.push({distanceTo[i],i});
 		}
 	}
 	distanceTo[start] = 0;
@@ -107,10 +106,11 @@ pathInformation Graph::dijkstra(int start, int end)
 		// get a reference to the vertex, if the vertex has been visited, continue
 		std::pair<int,int> front = frontier.top();
 		graphVertex* vertex = vertices[front.second];
-		if(!visited[front.first])
+		bool bVisited = visited[front.second];
+		frontier.pop();
+		if(!visited[front.second])
 		{
-			// remove from frontier, set visited to true
-			frontier.pop();
+			// set visited to true
 			visited[front.second] = true;
 
 			//iterate over all edges from the vertex in the adjacency list.
