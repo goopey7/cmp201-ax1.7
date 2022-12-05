@@ -5,6 +5,7 @@
 // Solved by Sam Collier - 2100259
 
 #include "Graph.h"
+#include <sstream>
 
 // digraph constructor.
 // initialise size and vertices (a pointer to an array of graphVertex pointers)
@@ -13,9 +14,27 @@ Graph::Graph(graphEdge edges[], int numEdges, int numVertices)
 {
 	// Assessed: 1 mark
 
-	// Dummy values for initial compilation, remove.
-	size = 0;
-	vertices = new graphVertex*[1]();
+	// number of nodes
+	size = numVertices;
+
+	// intialize vertices array
+	vertices = new graphVertex*[size]();
+
+	for(int vert = 0; vert < numVertices; vert++)
+	{
+		vertices[vert] = new graphVertex();
+		vertices[vert]->to = vert;
+		vertices[vert]->next = nullptr;
+
+		for(int edge = 0; edge < numEdges; edge++)
+		{
+			// if we found an edge that allows us to go to somewhere from where we are
+			if(edges[edge].from == vert)
+			{
+				vertices[vert]->next = getAdjacencyList(edges[edge].to, edges[edge].weight, vertices[vert]->next);
+			}
+		}
+	}
 }
 
 // Builds a string representation of the graph showing the edges going from each vertex in the following form:
@@ -27,7 +46,23 @@ Graph::Graph(graphEdge edges[], int numEdges, int numVertices)
 std::string Graph::display()
 {
 	// Assessed: 1 mark
-	return "";
+	std::ostringstream oss;
+	for(int vert = 0; vert < size; vert++)
+	{
+		graphVertex* llNode = vertices[vert];
+		oss << "v" << llNode->to << ": ";
+		while(llNode->next != nullptr)
+		{
+			llNode = llNode->next;
+			oss << llNode->to << " (w=" << llNode->weight << ")";
+			if(llNode->next != nullptr)
+			{
+				oss << ", ";
+			}
+		}
+		oss << '\n';
+	}
+	return oss.str();
 }
 
 // Use Dijkstra's algorithm to find the shortest path from start to end.
